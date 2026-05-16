@@ -128,6 +128,15 @@ npm run dev
 
 - [http://localhost:3000](http://localhost:3000)
 
+## How to Run (Quick)
+
+1. `npm install`
+2. Configure `.env.local` using `.env.example`
+3. Apply `supabase/migrations/20260516_init.sql` in Supabase SQL editor
+4. `npm run dev`
+5. Open `http://localhost:3000`
+6. Create a staff account, verify email, then sign in
+
 ## Testing
 
 Run all tests:
@@ -154,6 +163,15 @@ npm run lint
 
 This is intentionally a staff-assist tool, not a fully autonomous responder.
 Staff can review, edit, and route suggested outputs before client communication.
+
+## Design Decisions
+
+- **Staff-assist, not full automation**: the tool recommends actions and responses, but humans remain in the loop for client-safe communication.
+- **Structured AI output**: strict JSON prompt + schema validation prevents fragile free-text parsing in the UI.
+- **Confidence-aware fallback**: low-confidence or invalid AI responses are preserved with manual-review flags instead of failing hard.
+- **Per-user model control**: OpenRouter model defaults are saved in user settings, with per-enquiry override for experimentation.
+- **Secure multi-user data model**: Supabase Auth + RLS ensures each staff user can only access their own enquiry history/settings.
+- **Two-surface workflow**: main assistant page for analysis and a separate card dashboard for history + quick reopen of full results.
 
 ## Automation Potential
 
