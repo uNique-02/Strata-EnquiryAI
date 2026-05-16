@@ -18,6 +18,15 @@ export default async function SettingsPage() {
     userId: user.id,
     envDefaultModel: env.openRouterDefaultModel,
   });
+  const { data: apiKeys, error: apiKeysError } = await supabase
+    .from("public_api_keys")
+    .select("id,label,api_key,revoked_at,created_at,updated_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (apiKeysError) {
+    throw new Error(apiKeysError.message);
+  }
 
   return (
     <AppShell userEmail={user.email ?? "staff@unknown"}>
@@ -30,7 +39,7 @@ export default async function SettingsPage() {
 
       <div className="space-y-6">
         <ModelSettingsForm initialSettings={settings} />
-        <DeveloperApiKeyForm initialPublicApiKey={settings.publicApiKey ?? null} />
+        <DeveloperApiKeyForm initialKeys={apiKeys ?? []} />
       </div>
     </AppShell>
   );

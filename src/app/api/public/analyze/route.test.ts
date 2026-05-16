@@ -78,9 +78,11 @@ describe("POST /api/public/analyze", () => {
       from: () => ({
         select: () => ({
           eq: () => ({
-            maybeSingle: async () => ({
-              data: { user_id: "user_1" },
-              error: null,
+            is: () => ({
+              maybeSingle: async () => ({
+                data: { id: "key_1" },
+                error: null,
+              }),
             }),
           }),
         }),

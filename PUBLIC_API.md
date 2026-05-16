@@ -12,7 +12,8 @@ This project exposes a public endpoint for external systems (web forms, CRM, tic
 Generate a key inside the web app:
 
 - Go to `Settings` → `Developer Settings`
-- Click `Generate API Key` (or `Rotate API Key`)
+- Click `Create Key` (you can create multiple keys with labels)
+- Use `Revoke` to immediately disable any compromised or unused key
 - Copy the key and store it securely
 
 Then send that key on each request:

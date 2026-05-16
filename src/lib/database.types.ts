@@ -64,7 +64,6 @@ export interface Database {
           default_model: string;
           temperature: number;
           max_tokens: number;
-          public_api_key: string | null;
           updated_at: string;
         };
         Insert: {
@@ -72,13 +71,41 @@ export interface Database {
           default_model?: string;
           temperature?: number;
           max_tokens?: number;
-          public_api_key?: string | null;
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["user_settings"]["Insert"]>;
         Relationships: [
           {
             foreignKeyName: "user_settings_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      public_api_keys: {
+        Row: {
+          id: string;
+          user_id: string;
+          label: string;
+          api_key: string;
+          revoked_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          label?: string;
+          api_key: string;
+          revoked_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["public_api_keys"]["Insert"]>;
+        Relationships: [
+          {
+            foreignKeyName: "public_api_keys_user_id_fkey";
             columns: ["user_id"];
             referencedRelation: "users";
             referencedColumns: ["id"];

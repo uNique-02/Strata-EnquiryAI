@@ -41,9 +41,10 @@ export async function POST(request: Request) {
     } else {
       const admin = getSupabaseAdminClient();
       const { data, error } = await admin
-        .from("user_settings")
-        .select("user_id")
-        .eq("public_api_key", incomingKey)
+        .from("public_api_keys")
+        .select("id")
+        .eq("api_key", incomingKey)
+        .is("revoked_at", null)
         .maybeSingle();
 
       if (error) {

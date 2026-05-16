@@ -56,7 +56,8 @@ It classifies client enquiries, scores confidence, sets urgency, recommends next
 
 - Markdown link: [`PUBLIC_API.md`](./PUBLIC_API.md)
 - Repository path: `PUBLIC_API.md`
-- API key location in app: `Settings` → `Developer Settings` → `Generate API Key`
+- API key location in app: `Settings` → `Developer Settings` → `Create Key`
+- Supports multiple keys per user and per-key revoke from the same screen
 
 ## Prompt Design
 
