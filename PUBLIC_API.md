@@ -9,12 +9,21 @@ This project exposes a public endpoint for external systems (web forms, CRM, tic
 
 ## Authentication
 
-Set `PUBLIC_API_KEY` in your environment, then send it on each request:
+Generate a key inside the web app:
+
+- Go to `Settings` → `Developer Settings`
+- Click `Generate API Key` (or `Rotate API Key`)
+- Copy the key and store it securely
+
+Then send that key on each request:
 
 - `x-api-key: <PUBLIC_API_KEY>` (recommended)
 - or `Authorization: Bearer <PUBLIC_API_KEY>`
 
 If the key is missing or invalid, the API returns `401 Unauthorized`.
+
+Optional:
+- You may also configure a global fallback key with `PUBLIC_API_KEY` in environment variables.
 
 ## Endpoint
 
@@ -99,4 +108,3 @@ curl -X POST "https://<your-vercel-domain>/api/public/analyze" \
 - Never expose `PUBLIC_API_KEY` in frontend code.
 - Send requests from your backend or secured integration service.
 - Rotate the key if you suspect leakage.
-

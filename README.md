@@ -56,6 +56,7 @@ It classifies client enquiries, scores confidence, sets urgency, recommends next
 
 - Markdown link: [`PUBLIC_API.md`](./PUBLIC_API.md)
 - Repository path: `PUBLIC_API.md`
+- API key location in app: `Settings` → `Developer Settings` → `Generate API Key`
 
 ## Prompt Design
 
@@ -122,6 +123,7 @@ Optional:
 
 - `OPENROUTER_SITE_URL`
 - `OPENROUTER_APP_NAME`
+- `PUBLIC_API_KEY` (optional global fallback key; per-user keys can be generated in Settings)
 
 4. Run the SQL migration in Supabase SQL editor:
 

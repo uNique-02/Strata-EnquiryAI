@@ -3,6 +3,7 @@ import { z } from "zod";
 import { apiError, parseJsonError } from "@/lib/api";
 import { getServerEnv } from "@/lib/env";
 import { analyzeEnquiry } from "@/lib/services/enquiry-service";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { analyzeRequestSchema } from "@/lib/validation";
 
 const publicAnalyzeRequestSchema = analyzeRequestSchema.extend({
@@ -28,12 +29,31 @@ function extractApiKey(request: Request) {
 export async function POST(request: Request) {
   try {
     const env = getServerEnv();
-    if (!env.publicApiKey) {
-      return apiError("Public API is not configured.", 503);
+    const incomingKey = extractApiKey(request);
+    if (!incomingKey) {
+      return apiError("Unauthorized.", 401);
     }
 
-    const incomingKey = extractApiKey(request);
-    if (!incomingKey || incomingKey !== env.publicApiKey) {
+    let authorized = false;
+
+    if (env.publicApiKey && incomingKey === env.publicApiKey) {
+      authorized = true;
+    } else {
+      const admin = getSupabaseAdminClient();
+      const { data, error } = await admin
+        .from("user_settings")
+        .select("user_id")
+        .eq("public_api_key", incomingKey)
+        .maybeSingle();
+
+      if (error) {
+        return apiError("Unable to validate public API key.", 500);
+      }
+
+      authorized = Boolean(data);
+    }
+
+    if (!authorized) {
       return apiError("Unauthorized.", 401);
     }
 
@@ -63,4 +83,3 @@ export async function POST(request: Request) {
     return apiError(parseJsonError(error), 400);
   }
 }
-

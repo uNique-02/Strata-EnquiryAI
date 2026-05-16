@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
+import { DeveloperApiKeyForm } from "@/components/developer-api-key-form";
 import { ModelSettingsForm } from "@/components/model-settings-form";
 import { getServerEnv } from "@/lib/env";
 import { getOrCreateUserModelSettings } from "@/lib/services/enquiry-service";
@@ -27,8 +28,10 @@ export default async function SettingsPage() {
         </p>
       </div>
 
-      <ModelSettingsForm initialSettings={settings} />
+      <div className="space-y-6">
+        <ModelSettingsForm initialSettings={settings} />
+        <DeveloperApiKeyForm initialPublicApiKey={settings.publicApiKey ?? null} />
+      </div>
     </AppShell>
   );
 }
-

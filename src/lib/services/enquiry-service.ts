@@ -30,6 +30,7 @@ export interface UserModelSettings {
   defaultModel: string;
   temperature: number;
   maxTokens: number;
+  publicApiKey?: string | null;
 }
 
 export interface EnquiryAnalysisResult {
@@ -163,6 +164,7 @@ export async function getOrCreateUserModelSettings(args: {
       defaultModel: data.default_model,
       temperature: data.temperature,
       maxTokens: data.max_tokens,
+      publicApiKey: data.public_api_key,
     };
   }
 
@@ -185,5 +187,6 @@ export async function getOrCreateUserModelSettings(args: {
     defaultModel: inserted.default_model,
     temperature: inserted.temperature,
     maxTokens: inserted.max_tokens,
+    publicApiKey: inserted.public_api_key,
   };
 }

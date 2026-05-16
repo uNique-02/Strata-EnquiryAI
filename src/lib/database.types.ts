@@ -64,6 +64,7 @@ export interface Database {
           default_model: string;
           temperature: number;
           max_tokens: number;
+          public_api_key: string | null;
           updated_at: string;
         };
         Insert: {
@@ -71,6 +72,7 @@ export interface Database {
           default_model?: string;
           temperature?: number;
           max_tokens?: number;
+          public_api_key?: string | null;
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["user_settings"]["Insert"]>;

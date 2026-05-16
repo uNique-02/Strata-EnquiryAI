@@ -3,6 +3,7 @@ import { POST } from "@/app/api/public/analyze/route";
 
 const getServerEnv = vi.hoisted(() => vi.fn());
 const analyzeEnquiry = vi.hoisted(() => vi.fn());
+const getSupabaseAdminClient = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/env", () => ({
   getServerEnv,
@@ -10,6 +11,10 @@ vi.mock("@/lib/env", () => ({
 
 vi.mock("@/lib/services/enquiry-service", () => ({
   analyzeEnquiry,
+}));
+
+vi.mock("@/lib/supabase/admin", () => ({
+  getSupabaseAdminClient,
 }));
 
 describe("POST /api/public/analyze", () => {
@@ -63,5 +68,48 @@ describe("POST /api/public/analyze", () => {
     expect(payload.classification).toBe("New Client");
     expect(payload.source).toBe("public_api");
   });
-});
 
+  it("accepts per-user developer key from database", async () => {
+    getServerEnv.mockReturnValue({
+      publicApiKey: null,
+      openRouterDefaultModel: "openai/gpt-4o-mini",
+    });
+    getSupabaseAdminClient.mockReturnValue({
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            maybeSingle: async () => ({
+              data: { user_id: "user_1" },
+              error: null,
+            }),
+          }),
+        }),
+      }),
+    });
+    analyzeEnquiry.mockResolvedValue({
+      classification: "General Question",
+      confidence: 0.82,
+      urgency: "Low",
+      summary: "General query.",
+      recommended_action: "Route to client support.",
+      suggested_response: "Thanks for reaching out.",
+      manual_review: false,
+      model_used: "openai/gpt-4o-mini",
+      prompt_version: "v1.0.0",
+      raw_ai_json: null,
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/public/analyze", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": "strata_pk_test",
+        },
+        body: JSON.stringify({ enquiryText: "Can you explain your onboarding process?" }),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+  });
+});
