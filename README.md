@@ -52,6 +52,11 @@ It classifies client enquiries, scores confidence, sets urgency, recommends next
   - Public API key-protected analysis endpoint for external systems
   - Full docs: [`PUBLIC_API.md`](./PUBLIC_API.md)
 
+## Public API Documentation
+
+- Markdown link: [`PUBLIC_API.md`](./PUBLIC_API.md)
+- Repository path: `PUBLIC_API.md`
+
 ## Prompt Design
 
 The system prompt enforces:
