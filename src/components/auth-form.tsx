@@ -19,6 +19,15 @@ export function AuthForm({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  async function sendPasswordReset(emailToReset: string) {
+    const supabase = getSupabaseBrowserClient();
+    const redirectTo = `${window.location.origin}/auth/reset-password`;
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(emailToReset, {
+      redirectTo,
+    });
+    if (resetError) throw resetError;
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
@@ -33,16 +42,56 @@ export function AuthForm({
           email,
           password,
         });
-        if (loginError) throw loginError;
+        if (loginError) {
+          if (loginError.message.toLowerCase().includes("email not confirmed")) {
+            throw new Error(
+              "Please verify your email first. We sent a verification link when you signed up.",
+            );
+          }
+          throw loginError;
+        }
         router.push(nextPath);
         router.refresh();
       } else {
-        const { error: signupError } = await supabase.auth.signUp({
+        const { error: signupError, data } = await supabase.auth.signUp({
           email,
           password,
         });
-        if (signupError) throw signupError;
-        setMessage("Account created. You can now sign in.");
+        if (signupError) {
+          if (
+            signupError.message.toLowerCase().includes("already registered") ||
+            signupError.message.toLowerCase().includes("already been registered")
+          ) {
+            await sendPasswordReset(email);
+            setMessage(
+              "This email is already registered. We sent a password reset email so you can regain access.",
+            );
+            return;
+          }
+          throw signupError;
+        }
+
+        const existingUserWithoutSession =
+          !data.session &&
+          !!data.user &&
+          Array.isArray(data.user.identities) &&
+          data.user.identities.length === 0;
+
+        if (existingUserWithoutSession) {
+          await sendPasswordReset(email);
+          setMessage(
+            "This email is already registered. We sent a password reset email so you can regain access.",
+          );
+          return;
+        }
+
+        if (!data.session) {
+          setMessage(
+            "Verification email sent. Please verify your email before signing in.",
+          );
+        } else {
+          setMessage("Account created. You can now sign in.");
+        }
       }
     } catch (authError) {
       setError(authError instanceof Error ? authError.message : "Authentication failed.");
@@ -106,6 +155,14 @@ export function AuthForm({
           {mode === "login" ? "Sign up" : "Sign in"}
         </Link>
       </p>
+      {mode === "login" ? (
+        <p className="mt-2 text-sm text-slate-600">
+          Forgot your password?{" "}
+          <Link className="font-semibold text-blue-700 hover:text-blue-800" href="/auth/forgot-password">
+            Reset it
+          </Link>
+        </p>
+      ) : null}
     </div>
   );
 }

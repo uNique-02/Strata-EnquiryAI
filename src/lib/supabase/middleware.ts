@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 const PROTECTED_ROUTES = ["/", "/dashboard", "/settings"];
-const AUTH_ROUTES = ["/auth/login", "/auth/signup"];
+const REDIRECT_IF_AUTHENTICATED_ROUTES = ["/auth/login", "/auth/signup"];
 
 function isProtectedRoute(pathname: string) {
   return PROTECTED_ROUTES.some((route) =>
@@ -11,7 +11,7 @@ function isProtectedRoute(pathname: string) {
 }
 
 function isAuthRoute(pathname: string) {
-  return AUTH_ROUTES.some((route) => pathname.startsWith(route));
+  return REDIRECT_IF_AUTHENTICATED_ROUTES.some((route) => pathname.startsWith(route));
 }
 
 export async function updateSession(request: NextRequest) {
