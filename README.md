@@ -181,6 +181,7 @@ Staff can review, edit, and route suggested outputs before client communication.
 - **Per-user model control**: OpenRouter model defaults are saved in user settings, with per-enquiry override for experimentation.
 - **Secure multi-user data model**: Supabase Auth + RLS ensures each staff user can only access their own enquiry history/settings.
 - **Two-surface workflow**: main assistant page for analysis and a separate card dashboard for history + quick reopen of full results.
+- **Public API for automation**: a key-protected public endpoint (`POST /api/public/analyze`) enables safe integration with web forms, CRMs, email pipelines, and task queues without requiring dashboard login.
 
 ## Automation Potential
 
