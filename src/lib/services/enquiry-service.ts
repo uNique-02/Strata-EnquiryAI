@@ -32,17 +32,28 @@ export interface UserModelSettings {
   maxTokens: number;
 }
 
-export async function analyzeAndSaveEnquiry(args: {
-  supabase: DBClient;
-  userId: string;
-  input: AnalyzeEnquiryInput;
+export interface EnquiryAnalysisResult {
+  classification: Classification;
+  confidence: number;
+  urgency: Urgency;
+  summary: string;
+  recommended_action: string;
+  suggested_response: string;
+  manual_review: boolean;
+  model_used: string;
+  prompt_version: string;
+  raw_ai_json: Json | null;
+}
+
+export async function analyzeEnquiry(input: {
+  enquiry: AnalyzeEnquiryInput;
   settings: UserModelSettings;
-}) {
-  const validatedInput = analyzeRequestSchema.parse(args.input);
+}): Promise<EnquiryAnalysisResult> {
+  const validatedInput = analyzeRequestSchema.parse(input.enquiry);
   const clientName = normalizeOptionalString(validatedInput.clientName);
   const clientEmail = normalizeOptionalString(validatedInput.clientEmail);
   const modelToUse =
-    normalizeOptionalString(validatedInput.modelOverride) ?? args.settings.defaultModel;
+    normalizeOptionalString(validatedInput.modelOverride) ?? input.settings.defaultModel;
 
   let aiPayload: unknown = null;
   let parsedAnalysis = fallbackAiResponse(validatedInput.enquiryText);
@@ -56,8 +67,8 @@ export async function analyzeAndSaveEnquiry(args: {
         clientEmail,
         enquiryText: validatedInput.enquiryText,
       }),
-      temperature: args.settings.temperature,
-      maxTokens: args.settings.maxTokens,
+      temperature: input.settings.temperature,
+      maxTokens: input.settings.maxTokens,
     });
 
     aiPayload = completion.raw;
@@ -70,11 +81,7 @@ export async function analyzeAndSaveEnquiry(args: {
 
   const manualReview = parsedAnalysis.confidence < MANUAL_REVIEW_THRESHOLD;
 
-  const recordToInsert: Database["public"]["Tables"]["enquiries"]["Insert"] = {
-    user_id: args.userId,
-    client_name: clientName,
-    client_email: clientEmail,
-    enquiry_text: validatedInput.enquiryText,
+  return {
     classification: parsedAnalysis.classification,
     confidence: parsedAnalysis.confidence,
     urgency: parsedAnalysis.urgency,
@@ -85,6 +92,38 @@ export async function analyzeAndSaveEnquiry(args: {
     model_used: modelToUse,
     prompt_version: PROMPT_VERSION,
     raw_ai_json: aiPayload as Json,
+  };
+}
+
+export async function analyzeAndSaveEnquiry(args: {
+  supabase: DBClient;
+  userId: string;
+  input: AnalyzeEnquiryInput;
+  settings: UserModelSettings;
+}) {
+  const validatedInput = analyzeRequestSchema.parse(args.input);
+  const clientName = normalizeOptionalString(validatedInput.clientName);
+  const clientEmail = normalizeOptionalString(validatedInput.clientEmail);
+  const analysis = await analyzeEnquiry({
+    enquiry: validatedInput,
+    settings: args.settings,
+  });
+
+  const recordToInsert: Database["public"]["Tables"]["enquiries"]["Insert"] = {
+    user_id: args.userId,
+    client_name: clientName,
+    client_email: clientEmail,
+    enquiry_text: validatedInput.enquiryText,
+    classification: analysis.classification,
+    confidence: analysis.confidence,
+    urgency: analysis.urgency,
+    summary: analysis.summary,
+    recommended_action: analysis.recommended_action,
+    suggested_response: analysis.suggested_response,
+    manual_review: analysis.manual_review,
+    model_used: analysis.model_used,
+    prompt_version: analysis.prompt_version,
+    raw_ai_json: analysis.raw_ai_json,
   };
 
   const { data, error } = await args.supabase
@@ -148,4 +187,3 @@ export async function getOrCreateUserModelSettings(args: {
     maxTokens: inserted.max_tokens,
   };
 }
-

@@ -48,6 +48,9 @@ It classifies client enquiries, scores confidence, sets urgency, recommends next
   - Returns user model defaults
 - `PATCH /api/settings/model`
   - Updates `{ defaultModel, temperature, maxTokens }`
+- `POST /api/public/analyze`
+  - Public API key-protected analysis endpoint for external systems
+  - Full docs: [`PUBLIC_API.md`](./PUBLIC_API.md)
 
 ## Prompt Design
 
@@ -105,6 +108,7 @@ cp .env.example .env.local
 
 - `OPENROUTER_API_KEY`
 - `OPENROUTER_DEFAULT_MODEL`
+- `PUBLIC_API_KEY`
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`

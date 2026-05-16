@@ -1,6 +1,7 @@
 interface ServerEnv {
   openRouterApiKey: string;
   openRouterDefaultModel: string;
+  publicApiKey?: string;
   openRouterSiteUrl?: string;
   openRouterAppName?: string;
   supabaseUrl: string;
@@ -27,6 +28,7 @@ export function getServerEnv(): ServerEnv {
   cachedServerEnv = {
     openRouterApiKey: requiredEnv("OPENROUTER_API_KEY"),
     openRouterDefaultModel: requiredEnv("OPENROUTER_DEFAULT_MODEL"),
+    publicApiKey: process.env.PUBLIC_API_KEY,
     openRouterSiteUrl: process.env.OPENROUTER_SITE_URL,
     openRouterAppName: process.env.OPENROUTER_APP_NAME,
     supabaseUrl: requiredEnv("NEXT_PUBLIC_SUPABASE_URL"),
@@ -43,4 +45,3 @@ export function getPublicSupabaseEnv() {
     supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
   };
 }
-
